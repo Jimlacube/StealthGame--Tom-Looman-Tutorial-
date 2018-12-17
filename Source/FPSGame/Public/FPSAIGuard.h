@@ -55,7 +55,23 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "AI")
 	void OnStateChanged(EAIState NewState);
 
+	UFUNCTION()
+	void GuardPatrol();
+
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Status")
+	bool bAbleToPatrol;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Status")
+	AActor* FirstTargetPoint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Patrol Status")
+	AActor* SecondTargetPoint;
+
+	UPROPERTY(VisibleAnywhere, Category = "Patrol Status")
+	AActor* CurrentTargetPoint;
 };

@@ -4,6 +4,8 @@
 #include "Perception/PawnSensingComponent.h"
 #include "DrawDebugHelpers.h"
 #include "FPSGameMode.h"
+#include "Net/UnrealNetwork.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 
 // Sets default values
 AFPSAIGuard::AFPSAIGuard()
@@ -14,6 +16,18 @@ AFPSAIGuard::AFPSAIGuard()
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
 
 	GuardState = EAIState::Idle;
+
+	// Patrol goal checks
+	if (CurrentTargetPoint)
+	{
+		FVector Delta = GetActorLocation() - CurrentTargetPoint->GetActorLocation();
+		float DistanceToGoal = Delta.Size();
+
+		if (DistanceToGoal < 100)
+		{
+			GuardPatrol();
+		}
+	}
 }
 
 // Called when the game starts or when spawned
@@ -25,6 +39,11 @@ void AFPSAIGuard::BeginPlay()
 	PawnSensingComp->OnHearNoise.AddDynamic(this, &AFPSAIGuard::OnNoiseHeard);
 
 	OriginalRotation = GetActorRotation();
+
+	if (bAbleToPatrol)
+	{
+		GuardPatrol();
+	}
 }
 
 void AFPSAIGuard::OnPawnSeen(APawn * SeenPawn)
@@ -91,6 +110,25 @@ void AFPSAIGuard::SetGuardState(EAIState NewState)
 	GuardState = NewState;
 
 	OnStateChanged(GuardState);
+}
+
+void AFPSAIGuard::GuardPatrol()
+{
+	if (GuardState == EAIState::Suspicious)
+	{
+		return;
+	}
+
+	if (CurrentTargetPoint == nullptr || CurrentTargetPoint == FirstTargetPoint)
+	{
+		CurrentTargetPoint = FirstTargetPoint;
+	}
+	else
+	{
+		CurrentTargetPoint = SecondTargetPoint;
+	}
+
+	UAIBlueprintHelperLibrary::SimpleMoveToActor(GetController(), CurrentTargetPoint);
 }
 
 // Called every frame
