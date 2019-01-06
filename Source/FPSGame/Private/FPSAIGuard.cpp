@@ -17,17 +17,7 @@ AFPSAIGuard::AFPSAIGuard()
 
 	GuardState = EAIState::Idle;
 
-	// Patrol goal checks
-	if (CurrentTargetPoint)
-	{
-		FVector Delta = GetActorLocation() - CurrentTargetPoint->GetActorLocation();
-		float DistanceToGoal = Delta.Size();
 
-		if (DistanceToGoal < 100)
-		{
-			GuardPatrol();
-		}
-	}
 }
 
 // Called when the game starts or when spawned
@@ -136,4 +126,15 @@ void AFPSAIGuard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Patrol goal checks
+	if (CurrentTargetPoint)
+	{
+		FVector Delta = GetActorLocation() - CurrentTargetPoint->GetActorLocation();
+		float DistanceToGoal = Delta.Size();
+
+		if (DistanceToGoal < 100)
+		{
+			GuardPatrol();
+		}
+	}
 }
